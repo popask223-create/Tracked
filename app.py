@@ -1,5 +1,7 @@
 from flask import Flask, request, redirect
-import datetime, requests, os
+import datetime
+import requests
+import os
 
 app = Flask(__name__)
 
@@ -19,8 +21,13 @@ def get_geo(ip):
     return "Unknown"
 
 def send_tg(msg):
-    if TELEGRAM_TOKEN != "8784653369:AAFfKAiDIKX2O5uDcwtBIP-LjkTixwfBF2o":
-        requests.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage", json={"chat_id": CHAT_ID, "text": msg})
+    try:
+        requests.post(
+            f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+            json={"chat_id": CHAT_ID, "text": msg}
+        )
+    except:
+        pass
 
 @app.route('/')
 def track():
@@ -29,15 +36,18 @@ def track():
     ref = request.headers.get('Referer', 'Direct')
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     geo = get_geo(ip)
-    log = f"[{now}] IP: {ip} | {geo} | UA: {ua[:60]}... | Ref: {ref}\n"
-    with open(LOG_FILE, 'a', encoding='utf-8') as f: f.write(log)
-    send_tg(f"New visit!\nIP: {ip}\nGeo: {geo}")
+    log = f"[{now}] IP: {ip} | {geo} | UA: {ua[:60]} | Ref: {ref}\n"
+    with open(LOG_FILE, 'a', encoding='utf-8') as f:
+        f.write(log)
+    send_tg(f"Visit: {ip} | {geo}")
     return redirect(REDIRECT_URL, 302)
 
 @app.route('/logs')
 def logs():
-    if not os.path.exists(LOG_FILE): return "No logs"
-    with open(LOG_FILE, 'r', encoding='utf-8') as f: return f"<pre>{f.read()}</pre>"
+    if not os.path.exists(LOG_FILE):
+        return "No logs"
+    with open(LOG_FILE, 'r', encoding='utf-8') as f:
+        return f"<pre>{f.read()}</pre>"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)

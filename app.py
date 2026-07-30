@@ -26,8 +26,8 @@ def send_tg(msg):
             f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
             json={"chat_id": CHAT_ID, "text": msg}
         )
-    except:
-        pass
+    except Exception as e:
+        print(f"Telegram error: {e}")
 
 @app.route('/')
 def track():

